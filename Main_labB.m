@@ -10,9 +10,12 @@ clc; clear;
 mex sbx.c %Since toolbox written in C and wrapped using MATLAB
 mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
 
-load ('Sobol_Sampling') % load sobol sampling (since optimal amongst other)
+load ('Sobol_Sampling') % load  sampling 
 load ('Full_Sampling')
 load('Latin_Sampling')
-P = fac_sampl; 
+P = X_sobol; % Selected Sobol since optimal amongst others
 
 Z = optimizeControlSystem(P);% Re-evaluate the design using post-processed
+%---------------------Calculating Fitness--------------------------------%
+% Non-dominated Sorting 
+nond_rank = rank_nds(Z);
