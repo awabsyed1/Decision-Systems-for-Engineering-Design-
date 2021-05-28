@@ -11,6 +11,8 @@ mex sbx.c %Since toolbox written in C and wrapped using MATLAB
 mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
 
 load ('Sobol_Sampling') % load sobol sampling (since optimal amongst other)
-P = X_sobol; 
+load ('Full_Sampling')
+load('Latin_Sampling')
+P = fac_sampl; 
 
 Z = optimizeControlSystem(P);% Re-evaluate the design using post-processed
