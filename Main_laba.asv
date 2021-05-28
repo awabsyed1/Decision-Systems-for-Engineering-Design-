@@ -9,9 +9,10 @@ clc; clear;
 ts = 1; 
 z = tf('z',ts);
 % Gains (compare with stable and unstable system - if deemed necessary) 
-Kp = [0.1]; 
+Kp = [0.1 ]; 
 Ki = [0.2];  
 K = [Kp Ki];
+
 for i = 1:100
     Z(i,:) = evaluateControlSystem(K);
 end
