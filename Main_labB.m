@@ -19,9 +19,11 @@ P = X_sobol; % Selected Sobol since optimal amongst others
 Z = optimizeControlSystem(P);clc;% Re-evaluate the design - post-processed
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
-nond_rank = rank_nds(X_sobol);clc;
+while 
+end
+nond_rank = rank_nds(Z);clc;
 %Crowding Distance 
-crowding_d = crowding(X_sobol,nond_rank); clc;
+crowding_d = crowding(Z,nond_rank); clc;
 
 %---------------------------Selection-for-Variation----------------------%
 
