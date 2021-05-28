@@ -120,7 +120,8 @@ xlabel ('Performance Criteria')
 title('Latin Hypercube sampling')
 
 save Sobol_Sampling.mat X_sobol % To be used in lab B 
-
+save Latin_Sampling.mat latin_hyper % To be used in Lab B 
+save Full_Sampling.mat fac_sampl % % To be used in Lab B
 
 
 
