@@ -9,13 +9,17 @@
 clc; clear;
 mex sbx.c %Since toolbox written in C and wrapped using MATLAB
 mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
+mex rank_nds.c
+mex crowdingNSGA_II.c 
 
 load ('Sobol_Sampling') % load  sampling 
 load ('Full_Sampling')
 load('Latin_Sampling')
 P = X_sobol; % Selected Sobol since optimal amongst others
-
 Z = optimizeControlSystem(P);% Re-evaluate the design using post-processed
-%---------------------Calculating Fitness--------------------------------%
+%---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
-nond_rank = rank_nds(Z);
+nond_rank = rank_nds(X_sobol);
+%Crowding Distance 
+crowding_d = crowding(Z,nond_rank); 
+
