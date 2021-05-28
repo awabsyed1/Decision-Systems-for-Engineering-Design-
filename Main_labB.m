@@ -16,10 +16,20 @@ load ('Sobol_Sampling') % load  sampling
 load ('Full_Sampling')
 load('Latin_Sampling')
 P = X_sobol; % Selected Sobol since optimal amongst others
-Z = optimizeControlSystem(P);% Re-evaluate the design using post-processed
+Z = optimizeControlSystem(P);clc;% Re-evaluate the design - post-processed
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
-nond_rank = rank_nds(X_sobol);
+nond_rank = rank_nds(X_sobol);clc;
 %Crowding Distance 
-crowding_d = crowding(Z,nond_rank); 
+crowding_d = crowding(X_sobol,nond_rank); clc;
+
+%---------------------------Selection-for-Variation----------------------%
+
+
+%---------------------------Performing Variation--------------------------%
+
+
+%---------------------------Monitoring Convergence------------------------%
+
+%---------------------------Plots | Results-------------------------------%
 
