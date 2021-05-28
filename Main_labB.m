@@ -6,4 +6,11 @@
 %   preferences cannot be satisfied and resolve the design problem. 
 
 %-------------Initialize the population---------------------------------%
-% load (
+clc; clear;
+mex sbx.c %Since toolbox written in C and wrapped using MATLAB
+mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
+
+load ('Sobol_Sampling') % load sobol sampling (since optimal amongst other)
+P = X_sobol; 
+
+Z = optimizeControlSystem(P);% Re-evaluate the design using post-processed
