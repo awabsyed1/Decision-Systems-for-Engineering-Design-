@@ -119,7 +119,7 @@ parallelcoords(Z1)
 xlabel ('Performance Criteria') 
 title('Latin Hypercube sampling')
 
-
+save Sobol_Sampling.mat X_sobol % To be used in lab B 
 
 
 
