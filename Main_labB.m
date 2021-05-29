@@ -45,6 +45,7 @@ n = 250; %Number of iterations
 %     min_range(k) = 0.05
 %     max_range(k) = 
 % end
+%%
 %------------------------Monitoring Covergence--------------------------%
 for i = 1:250 %number of iterations 
     nond_rank = rank_nds(P);
@@ -58,7 +59,7 @@ for i = 1:250 %number of iterations
      % bound = [min(P(:,1)),min(P(:,2));max(P(:,1)),max(P(:,2))];
     bound = [zeros(1,2);ones(1,2)];
     child_plymut = polymut(X_sobol,bound); 
-    child_sbx = sbx(X_sobol,bound); 
+    child_sbx = sbx(P,bound); 
 
     %--------------------------Selection-for-Survival---------------------%
     Z_child = optimizeControlSystem(child_sbx); 
@@ -98,52 +99,17 @@ parallelcoords(Z)
 title('Parallel Coordinates')
 xlabel('criterias')
 %% 
-%% Task B.1 (Jacky)
-% initial population
+%%  Second Attempt 
+load Sobol_Sampling
 P = X_sobol;
 % evaluate design choices
 % Z = optimizeControlSystem(P);
 
 % NSGA-II optimisor iteration
 
-for i = 1:25
-    % calculate fitness for NSGA-II optimiser
-        % Non-dominance sorting
-        ndrank = rank_nds(P);
-        fitness = max(ndrank)-ndrank;
-
-        % Crowding distance
-        crowdingd = crowding(P,ndrank);
-
-
-    % Selection for variation
-    selection = btwr([fitness,crowdingd]);
-
-    % Variation
-    bound = [min(P(:,1)),min(P(:,2));...
-        max(P(:,1)),max(P(:,2))];
-    
-    %child_polymut = polymut(X_sobol,bound);
-    child_sbx = sbx(P,bound);
-
-
-    % Selection-for-survival
-    % Z_child = optimizeControlSystem(child_sbx);
-
-    % check the rank and fitness of all designs
-    unifiedPop = [P;child_sbx];
-    ndrank_unified = rank_nds(unifiedPop);
-    fitness_unified = max(ndrank_unified)-ndrank_unified;
-    % crowding distance for all designs
-    crowdingd_unified = crowding(unifiedPop,ndrank_unified);
-
-    % NSGA-II Selection for survivor
-    SurvivorIndex = reducerNSGA_II(unifiedPop, ndrank_unified,...
-        crowdingd_unified);
-
-    % extract the survivors by their indices
-    Survivor = unifiedPop(SurvivorIndex,:);  
-    
+for i = 1:250
+    % call function for optimizer
+    Survivor = optimizer(P);
     % use the survivor (after elitism) as new population
     P = Survivor;
 end
@@ -151,9 +117,15 @@ end
 % monitor convergence by Hypervolume_MEX
 %HV = Hypervolume_MEX(P);
 
-%%  visualise the trade-off among criteria
+% %% visualise the trade-off among criteria
 Z = optimizeControlSystem(P);
 figure(1)
 parallelcoords(Z)
 title('Parallel Coordinates')
 xlabel('criterias')
+% %%
+figure(2)
+gplotmatrix(Z,P)
+title('Sobol')
+
+
