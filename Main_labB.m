@@ -12,6 +12,7 @@ mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
 mex rank_nds.c
 mex crowdingNSGA_II.c 
 mex btwr.c 
+mex polymut.c 
 
 load ('Sobol_Sampling') % load  sampling 
 load ('Full_Sampling')
@@ -34,7 +35,7 @@ metric = Hypervolume_MEX(P);
 
 number_of_objectives = 10; % number of decision variables 
 
-n = 100; %Number of iterations 
+n = 250; %Number of iterations 
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
 % for i = 1:n
 %     
@@ -52,9 +53,35 @@ crowding_d = crowding(Z,nond_rank);
 selection = btwr([fitness,crwoding_d]);
 
 %---------------------------Performing Variation--------------------------%
-bound = [zeros(1,2);ones(1,2
+bound = [zeros(1,2);ones(1,2)]; 
+child_plymut = polymut(Z,bound); 
+child_sbx = sbx(Z,bound); 
 
-%---------------------------Monitoring Convergence------------------------%
+%--------------------------Selection-for-Survival-------------------------%
+Z_child = optimizeControlSystem(child_sbx); 
 
+
+pop_unified = [Z;child_sbx];
+ndrank_unified = rank_nds(pop_unified); 
+unified_fitness = max(ndrak_unified)-ndrank_unified; 
+unified_crowd = crowding(pop_unified,ndrank_unified);
+
+pop = reducerNSGA_II(pop_unified, ndrank_unified, unified_crowd);
 %---------------------------Plots | Results-------------------------------%
+Survivor = zeros(100,2);
+for j = 1:100
+    % create indices vector
+    index = pop(j);
+    % extract survivors
+    Survivor(j,:) = pop_unified(index,:);    
+end
 
+for i = 1:250
+    Z(100*(i-1)+1:100*i,:) = optimizeControlSystem(Survivor);
+end
+figure(1)
+parallelcoords(Z)
+title('Parallel Coordinates')
+xlabel('criterias')
+%------------------------Monitoring Covergence--------------------------%
+HV = Hypervolume_MEX(Survivor);
