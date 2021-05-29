@@ -33,10 +33,15 @@ priority = [Hard High High High Moderate Low Moderate Low Low Moderate];
 
 metric = Hypervolume_MEX(P);
 
-number_of_objectives = 10; % number of decision variables 
-
 n = 250; %Number of iterations 
+number_of_objectives = 10; % number of decision variables 
+number_of_decision_variables = 100; 
+pop = 100; % population size 
+
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
+for i = 1:pop
+    nond_rank(i) = rank_nds(P)
+end 
 % for i = 1:n
 %     
 % end
