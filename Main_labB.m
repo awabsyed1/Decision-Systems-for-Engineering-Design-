@@ -17,7 +17,7 @@ load ('Sobol_Sampling') % load  sampling
 load ('Full_Sampling')
 load('Latin_Sampling')
 P = X_sobol; % Selected Sobol since optimal amongst others
-Z = optimizeControlSystem(P);clc;% Re-evaluate the design - post-processed
+Z = optimizeControlSystem(P);% Re-evaluate the design - post-processed
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
 desired_goal = [1 -6 60 -30 2 10 10 8 20 1]; 
@@ -26,7 +26,7 @@ Hard = 1;
 High = 0.8;
 Medium = 0.5;
 Low = 0; 
-priority = [Hard High High High Moderate Low Moderate Loow Low Moderate];
+priority = [Hard High High High Moderate Low Moderate Low Low Moderate];
 metric = Hypervolume_MEX(P);
 n = 100; %Number of iterations 
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
@@ -34,9 +34,9 @@ for i = 1:n
     
 end
 
-nond_rank = rank_nds(Z);clc;
+nond_rank = rank_nds(Z);
 %Crowding Distance 
-crowding_d = crowding(Z,nond_rank); clc;
+crowding_d = crowding(Z,nond_rank); 
 
 %---------------------------Selection-for-Variation----------------------%
 
