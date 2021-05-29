@@ -41,33 +41,48 @@ n = 250; %Number of iterations
 %     
 % end
 
-nond_rank = rank_nds(Z);
-%Crowding Distance 
-crowding_d = crowding(Z,nond_rank); 
-
 % for k = 1:10
 %     min_range(k) = 0.05
 %     max_range(k) = 
 % end
-%---------------------------Selection-for-Variation----------------------%
-selection = btwr([fitness,crwoding_d]);
+%------------------------Monitoring Covergence--------------------------%
+for i = 1:250 %number of iterations 
+    nond_rank = rank_nds(P);
+    fitness = max(nond_rank)-nond_rank;
 
-%---------------------------Performing Variation--------------------------%
-bound = [zeros(1,2);ones(1,2)]; 
-child_plymut = polymut(Z,bound); 
-child_sbx = sbx(Z,bound); 
+    %Crowding Distance 
+    crowding_d = crowding(P,nond_rank); 
+    %---------------------------Selection-for-Variation----------------------%
+    selection = btwr([fitness,crowding_d]);
+    %---------------------------Performing Variation--------------------------%   
+     % bound = [min(P(:,1)),min(P(:,2));max(P(:,1)),max(P(:,2))];
+    bound = [zeros(1,2);ones(1,2)];
+    child_plymut = polymut(X_sobol,bound); 
+    child_sbx = sbx(X_sobol,bound); 
 
-%--------------------------Selection-for-Survival-------------------------%
-Z_child = optimizeControlSystem(child_sbx); 
+    %--------------------------Selection-for-Survival---------------------%
+    Z_child = optimizeControlSystem(child_sbx); 
 
-pop_unified = [Z;child_sbx];
-ndrank_unified = rank_nds(pop_unified); 
-unified_fitness = max(ndrak_unified)-ndrank_unified; 
-unified_crowd = crowding(pop_unified,ndrank_unified);
+    pop_unified = [P;child_sbx];
+    ndrank_unified = rank_nds(pop_unified); 
+    unified_fitness = max(ndrank_unified)-ndrank_unified; 
+    unified_crowd = crowding(pop_unified,ndrank_unified);
 
-pop = reducerNSGA_II(pop_unified, ndrank_unified, unified_crowd);
-%---------------------------Plots | Results-------------------------------%
-Survivor = zeros(100,2);
+    pop = reducerNSGA_II(pop_unified, ndrank_unified, unified_crowd);
+    %-----------------NSGA-II Selection for survivor---------------------%
+   survivorindex = reducerNSGA_II(pop_unified,ndrank_unified,unified_crowd); 
+   survivor = pop_unified(survivorindex);
+
+    P = survivor; % New population 
+end
+HV = Hypervolume_MEX(P); % Monitor 
+
+Z = optimizeControlSystem(P);
+figure(1)
+parallelcoords(Z)
+title('Parallel Coordinates')
+xlabel('criterias')
+%%
 for j = 1:100
     % create indices vector
     index = pop(j);
@@ -82,8 +97,3 @@ figure(1)
 parallelcoords(Z)
 title('Parallel Coordinates')
 xlabel('criterias')
-%------------------------Monitoring Covergence--------------------------%
-HV = Hypervolume_MEX(Survivor);
-
-survivorindex = reducerNSGA__II(pop_unified,n
-survivor = pop_unified(survivorindex)

@@ -48,36 +48,40 @@ n = 250; %Number of iterations
 %------------------------Monitoring Covergence--------------------------%
 for i = 1:250 %number of iterations 
     nond_rank = rank_nds(P);
-    fitness = max(nond_rank)-non_rank;
+    fitness = max(nond_rank)-nond_rank;
 
     %Crowding Distance 
     crowding_d = crowding(P,nond_rank); 
     %---------------------------Selection-for-Variation----------------------%
-    selection = btwr([fitness,crwoding_d]);
-    %---------------------------Performing Variation--------------------------%
-    bound = [min(P(:,1)),min(P(:,2));...
-        max(P(:,1)),max(P(:,2))];
-    
-    child_plymut = polymut(P,bound); 
-    child_sbx = sbx(P,bound); 
+    selection = btwr([fitness,crowding_d]);
+    %---------------------------Performing Variation--------------------------%   
+     % bound = [min(P(:,1)),min(P(:,2));max(P(:,1)),max(P(:,2))];
+    bound = [zeros(1,2);ones(1,2)];
+    child_plymut = polymut(X_sobol,bound); 
+    child_sbx = sbx(X_sobol,bound); 
 
     %--------------------------Selection-for-Survival---------------------%
     Z_child = optimizeControlSystem(child_sbx); 
 
     pop_unified = [P;child_sbx];
     ndrank_unified = rank_nds(pop_unified); 
-    unified_fitness = max(ndrak_unified)-ndrank_unified; 
+    unified_fitness = max(ndrank_unified)-ndrank_unified; 
     unified_crowd = crowding(pop_unified,ndrank_unified);
 
     pop = reducerNSGA_II(pop_unified, ndrank_unified, unified_crowd);
     %-----------------NSGA-II Selection for survivor---------------------%
-   survivorindex = reducerNSGA__II(pop_unified,ndrank_unified,unified_crowd); 
+   survivorindex = reducerNSGA_II(pop_unified,ndrank_unified,unified_crowd); 
    survivor = pop_unified(survivorindex);
 
-    Z = survivor; % New population 
+    P = survivor; % New population 
 end
 HV = Hypervolume_MEX(P); % Monitor 
 
+Z = optimizeControlSystem(P);
+figure(1)
+parallelcoords(Z)
+title('Parallel Coordinates')
+xlabel('criterias')
 %%
 for j = 1:100
     % create indices vector
@@ -89,6 +93,66 @@ end
 for i = 1:250
     Z(100*(i-1)+1:100*i,:) = optimizeControlSystem(Survivor);
 end
+figure(1)
+parallelcoords(Z)
+title('Parallel Coordinates')
+xlabel('criterias')
+%% 
+%% Task B.1 (Jacky)
+% initial population
+P = X_sobol;
+% evaluate design choices
+% Z = optimizeControlSystem(P);
+
+% NSGA-II optimisor iteration
+
+for i = 1:25
+    % calculate fitness for NSGA-II optimiser
+        % Non-dominance sorting
+        ndrank = rank_nds(P);
+        fitness = max(ndrank)-ndrank;
+
+        % Crowding distance
+        crowdingd = crowding(P,ndrank);
+
+
+    % Selection for variation
+    selection = btwr([fitness,crowdingd]);
+
+    % Variation
+    bound = [min(P(:,1)),min(P(:,2));...
+        max(P(:,1)),max(P(:,2))];
+    
+    %child_polymut = polymut(X_sobol,bound);
+    child_sbx = sbx(P,bound);
+
+
+    % Selection-for-survival
+    % Z_child = optimizeControlSystem(child_sbx);
+
+    % check the rank and fitness of all designs
+    unifiedPop = [P;child_sbx];
+    ndrank_unified = rank_nds(unifiedPop);
+    fitness_unified = max(ndrank_unified)-ndrank_unified;
+    % crowding distance for all designs
+    crowdingd_unified = crowding(unifiedPop,ndrank_unified);
+
+    % NSGA-II Selection for survivor
+    SurvivorIndex = reducerNSGA_II(unifiedPop, ndrank_unified,...
+        crowdingd_unified);
+
+    % extract the survivors by their indices
+    Survivor = unifiedPop(SurvivorIndex,:);  
+    
+    % use the survivor (after elitism) as new population
+    P = Survivor;
+end
+
+% monitor convergence by Hypervolume_MEX
+%HV = Hypervolume_MEX(P);
+
+%%  visualise the trade-off among criteria
+Z = optimizeControlSystem(P);
 figure(1)
 parallelcoords(Z)
 title('Parallel Coordinates')
