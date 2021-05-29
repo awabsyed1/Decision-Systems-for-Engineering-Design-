@@ -10,7 +10,11 @@ ts = 1;
 z = tf('z',ts);
 % Gains (compare with stable and unstable system - if deemed necessary) 
 Kp = [0.1]; 
-Ki = [0.2];  
+Ki = [0.2]; 
+
+% KpMin = 0.01; KpMax = 1;
+% KiMin = 0.02; KiMax = 0.4; 
+
 K = [Kp Ki];
 for i = 1:100
     Z(i,:) = evaluateControlSystem(K);
