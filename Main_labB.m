@@ -49,10 +49,10 @@ crowding_d = crowding(Z,nond_rank);
 %     max_range(k) = 
 % end
 %---------------------------Selection-for-Variation----------------------%
-
+selection = btwr([fitness,crwoding_d]);
 
 %---------------------------Performing Variation--------------------------%
-
+bound = [zeros(1,2);ones(1,2
 
 %---------------------------Monitoring Convergence------------------------%
 
