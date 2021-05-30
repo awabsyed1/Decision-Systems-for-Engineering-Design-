@@ -54,7 +54,7 @@ end
 % end
 %%
 % Different (updated)
-for i = 1:5 %number of iterations 
+for i = 1:250 %number of iterations 
     nond_rank = rank_nds(Z);
     fitness = max(nond_rank)-nond_rank;
 
@@ -86,9 +86,9 @@ for i = 1:5 %number of iterations
 
    %  P = survivor; % New population 
 end
-HV = Hypervolume_MEX(space2); % Monitor 
+HV = Hypervolume_MEX(P); % Monitor 
 
-Z = optimizeControlSystem(space2);
+Z = optimizeControlSystem(P);
 figure(1)
 parallelcoords(Z)
 title('Parallel Coordinates')
