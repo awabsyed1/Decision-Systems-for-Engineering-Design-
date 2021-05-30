@@ -33,12 +33,11 @@ Hard = 1;
 High = 0;
 Moderate = 0;
 Low = 0; 
-priority = [Hard 0 0 0 0 0 0 0 0 0] ;
+priority = [Hard 0 0 0 0 0 0 0 0 0] ; %5.2.1
 priority_1 = [Hard High High High Moderate Low Moderate Low Low Moderate];
-%%
 metric = Hypervolume_MEX(space2);
-
-n = 50; %Number of iterations 
+%%
+n = 50; %Number of iterations / generations 
 number_of_objectives = 10; % number of decision variables 
 number_of_decision_variables = 100; 
 pop = 100; % population size 
@@ -48,6 +47,9 @@ for i = 1:n
     
     nond_rank(i) = rank_nds(Z)
 end 
+for i = 1 : number_of_decision_variables 
+    
+end
 % for i = 1:n
 %     
 % end
