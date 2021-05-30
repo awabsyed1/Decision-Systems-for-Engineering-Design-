@@ -33,21 +33,53 @@ Hard = 1;
 High = 0;
 Moderate = 0;
 Low = 0; 
-priority = [Hard 0 0 0 0 0 0 0 0 0] ;
+priority = [Hard 0 0 0 0 0 0 0 0 0] ; %5.2.1
 priority_1 = [Hard High High High Moderate Low Moderate Low Low Moderate];
-%%
 metric = Hypervolume_MEX(space2);
 
-n = 50; %Number of iterations 
+n = 50; %Number of iterations / generations 
 number_of_objectives = 10; % number of decision variables 
 number_of_decision_variables = 100; 
 pop = 100; % population size 
-
+front = 1; % Initialize the front number to 1
+F(front).f = [];
+individual = [];
+[N,m] = size(Z); % space2 or Z 
+x = Z; % space2 or Z 
+V = 100; % design/decision variables 
+%% 
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
-for i = 1:n
+for i = 1:99 % [N,M] = size(space2)
+    pool = round(pop/2); 
+    nond_rank = rank_nds(Z); % non-dominated sorting 
+    fitness = max(nond_rank)-nond_rank;
+    %Crowding Distance 
+    crowding_d = crowding(Z,nond_rank); 
+    % Selection for variation 
+    selectTourIndex = btwr([fitness,crowding_d]); % pool
+    parents = space2(selectTourIndex,:);
+    % Z = optimizeControlSystem(parents);
+    %----------------- performing variation-------------------%
+    % Simulated binary crossover 
+    bounds = [min(parents(:,1)),min(parents(:,2));...
+        max(parents(:,1)),max(parents(:,2))];
+    offspring_sim = sbx(parents,bounds); 
+    % Polynomial mutation 
+    offspring_poly = polymut(offspring_sim,bounds); %Poly
+    %----------------selection for survival-----------------%
+    Z_offspring = optimizeControlSystem(offspring_sim);
+    % Z_offspring_poly = optimizeControlSystem(offspring_poly);
     
-    nond_rank(i) = rank_nds(Z)
+    new_pop_sim = [Z;Z_offspring_sim]; % Simulated binary population
+    new_pop_poly = [Z;Z_offspring_poly]; % Polynomial mutation population
+    % Selection for survival 
+    [nond_rank_sim,fitness_sim,crowding_d_sim] = evaluate(new_pop_sim);
+    [nond_rank_poly,fitness_poly,crowding_d_poly] = evaluate(new_pop_poly);
+    
+    new_pop_indix = reducerNSGA_II(new_pop_sim,nond_rank_sim,
 end 
+
+
 % for i = 1:n
 %     
 % end
