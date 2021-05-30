@@ -12,8 +12,8 @@ z = tf('z',ts);
 k = 2;  %No. of design variables 
 n = 100; % No. of desired points 
 
-% Kp = [0.1]; 
-% Ki = [0.2]; 
+Kp = [0.1]; 
+Ki = [0.2]; 
 
 KpMin = 0.1; KpMax = 0.9;
 KiMin = 0.2; KiMax = 0.4; 
