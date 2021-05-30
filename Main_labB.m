@@ -40,7 +40,7 @@ pop = 100; % population size
 
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
 for i = 1:pop
-    nond_rank(i) = rank_nds(P)
+    nond_rank(i) = rank_nds(Z)
 end 
 % for i = 1:n
 %     
