@@ -60,11 +60,11 @@ Z3 = evaluateControlSystem(space2);
 gplotmatrix(Z3)
 title('Scatter Plot: Sobol Sampling Plan')
  
-% figure(4) % with Initial system (Kp & Ki)
-% for i = 1:9
-% gplotmatrix(Z,[],Z(:,i))
-% end
-% title('Initial System [Without Sampling Plan]')
+figure(4) % with Initial system (Kp & Ki)
+for i = 1:9
+gplotmatrix(Z,[],Z(:,i))
+end
+title('Initial System [Without Sampling Plan]')
 
 figure(5)
 plot(1:100,clusterdata(Z1,1),'o') % Latin 
