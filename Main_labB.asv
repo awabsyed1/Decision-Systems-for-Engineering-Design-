@@ -10,6 +10,7 @@ clc; clear;
 mex sbx.c %Since toolbox written in C and wrapped using MATLAB
 mex -DVARIANT=4 Hypervolume_MEX.c hv.c avl.c
 mex rank_nds.c
+mex rank_prf.c
 mex crowdingNSGA_II.c 
 mex btwr.c 
 mex polymut.c 
@@ -20,28 +21,31 @@ load ('Sobol_Space_Sampling')  %load space2 variable from lab A
 % load('Latin_Sampling')
 % P = X_sobol; % Selected Sobol since optimal amongst others
 Z = optimizeControlSystem(space2);% Re-evaluate the design - post-processed
-%%
+
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
-desired_goal = [1 -6 60 -30 2 10 10 8 20 1]; 
+desired_goal = [1 -inf -inf -inf -inf -inf -inf -inf -inf -inf]; % 5.2.1
+desired_goal_1 = [1 -6 -30 60 2 -inf 10 -inf -inf 1]; 
 min_range = [0 -20 -30 0 0 0 0 0 1];
 max_range = [1 -6 60 2 10 10 8 20 1];
 % Goal Priorities 
-Hard = 0.9; 
-High = 0.8;
-Moderate = 0.5;
+Hard = 1; 
+High = 0;
+Moderate = 0;
 Low = 0; 
-priority = [Hard High High High Moderate Low Moderate Low Low Moderate];
+priority = [Hard 0 0 0 0 0 0 0 0 0] ;
+priority_1 = [Hard High High High Moderate Low Moderate Low Low Moderate];
+%%
+metric = Hypervolume_MEX(space2);
 
-metric = Hypervolume_MEX(P);
-
-n = 250; %Number of iterations 
+n = 50; %Number of iterations 
 number_of_objectives = 10; % number of decision variables 
 number_of_decision_variables = 100; 
 pop = 100; % population size 
 
 [J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
-for i = 1:pop
+for i = 1:n
+    
     nond_rank(i) = rank_nds(Z)
 end 
 % for i = 1:n
@@ -54,7 +58,7 @@ end
 % end
 %%
 % Different (updated)
-for i = 1:250 %number of iterations 
+for i = 1:25 %number of iterations 
     nond_rank = rank_nds(Z);
     fitness = max(nond_rank)-nond_rank;
 
@@ -86,9 +90,9 @@ for i = 1:250 %number of iterations
 
    %  P = survivor; % New population 
 end
-HV = Hypervolume_MEX(P); % Monitor 
+HV = Hypervolume_MEX(space2); % Monitor 
 
-Z = optimizeControlSystem(P);
+Z = optimizeControlSystem(space2);
 figure(1)
 parallelcoords(Z)
 title('Parallel Coordinates')
@@ -119,9 +123,9 @@ P = X_sobol;
 
 for i = 1:250
     % call function for optimizer
-    Survivor = optimizer(P);
+    Survivor = optimizer(space2);
     % use the survivor (after elitism) as new population
-    P = Survivor;
+    space2 = Survivor;
 end
 
 % monitor convergence by Hypervolume_MEX
