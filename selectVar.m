@@ -7,3 +7,4 @@ function [ndrank,fitness,crowdingd] = selectVar(P)
     % Crowding distance
     crowdingd = crowding(P,ndrank);
 end
+

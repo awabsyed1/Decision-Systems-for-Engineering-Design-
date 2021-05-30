@@ -19,6 +19,7 @@ load ('Full_Sampling')
 load('Latin_Sampling')
 P = X_sobol; % Selected Sobol since optimal amongst others
 Z = optimizeControlSystem(P);% Re-evaluate the design - post-processed
+%%
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
 desired_goal = [1 -6 60 -30 2 10 10 8 20 1]; 
@@ -51,9 +52,9 @@ end
 %     max_range(k) = 
 % end
 %%
-%------------------------Monitoring Covergence--------------------------%
+% Different 
 for i = 1:250 %number of iterations 
-    nond_rank = rank_nds(P);
+    nond_rank = rank_nds(Z);
     fitness = max(nond_rank)-nond_rank;
 
     %Crowding Distance 
