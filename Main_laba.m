@@ -15,7 +15,7 @@ n = 100; % No. of desired points
 Kp = [0.1]; 
 Ki = [0.2]; 
 
-KpMin = 0.1; KpMax = 1;
+KpMin = 0.1; KpMax = 0.9;
 KiMin = 0.2; KiMax = 0.4; 
 
 K = [Kp Ki];
@@ -27,10 +27,10 @@ p = sobolset(k);
 p.Skip = 1; %Skip first row 
 X_sobol = net(p,100); % Sobol Sampling 
 
-design_space = fullfactorial ([2 50]); %Fulll Factorial [10 10]
+design_space = fullfactorial ([2 50]); %Fulll Factorial [2 50]
 design_space1 = rlh(n,k); % Latin 
 
-space(:,1) = rescale(design_space(:,1),KpMin,KpMax); % Ful Factorial
+space(:,1) = rescale(design_space(:,1),KpMin,KpMax); % Full Factorial
 space(:,2) = rescale(design_space(:,2),KiMin,KiMax);
 
 space1(:,1) = rescale(design_space1(:,1),KpMin,KpMax); % Latin 
@@ -56,17 +56,84 @@ Z2 = evaluateControlSystem(space);
 gplotmatrix(Z2)
 title('Scatter Plot: Full Factorial Sampling Plan')
 figure (3) % Scatter Plot with Sobol Sampling Plan
-Z3 = evaluateControlSystem(X_sobol);
+Z3 = evaluateControlSystem(space2);
 gplotmatrix(Z3)
 title('Scatter Plot: Sobol Sampling Plan')
+ 
+% figure(4) % with Initial system (Kp & Ki)
+% for i = 1:9
+% gplotmatrix(Z,[],Z(:,i))
+% end
+% title('Initial System [Without Sampling Plan]')
 
-figure(4) % with Initial system (Kp & Ki)
-for i = 1:9
-gplotmatrix(Z,[],Z(:,i))
+figure(5)
+plot(1:100,clusterdata(Z1,1),'o') % Latin 
+hold on
+plot(1:100,clusterdata(Z2,1),'o') % full factorial 
+hold on
+plot(1:100,clusterdata(Z3,1),'o') % sobol
+legend('Latin Hyper','Full !','Sobol')
+
+figure (6) % Star Plot with different sampling plan
+subplot(1,3,1)
+glyphplot(Z1)
+title('Star Plot: Latin Hypercube Sampling Plan')
+subplot(1,3,2)
+glyphplot(Z2)
+title('Star Plot: Full Factorial Sampling Plan')
+subplot(1,3,3)
+glyphplot(Z3)
+title('Star Plot: Sobol Sampling Plan')
+
+figure (7) % x-axis = performance critera , y-axis = Kp(top) & Ki(bottom)
+group = []; % Sobol Scatter Sobol Scatter 
+for i = 1:100
+    group(i,:) = [1, 2];
 end
-title('Initial System [Without Sampling Plan]')
+gplotmatrix(Z3,space2,group)
+title('Scatter Plot with Sobol Sampling Plan')
 
+figure (8) % Full Factorial Sampling Plan Scatter 
+group = [];
+for i = 1:100
+    group(i,:) = [1, 2];
+end
+gplotmatrix(Z2,space,group)
+title('Scatter Plot with Full Factorial Sampling Plan')
+
+figure (9) % Latin Hyper Cube 
+group = []; 
+for i = 1:100
+    group(i,:) = [1, 2];
+end
+gplotmatrix(Z1,space1,group)
+title('Scatter Plot with Latin Hypercube Sampling Plan')
+%--------------------Space Filling Plots--------------------------------%
+% Visually Compare Phi metric value
+figure (10)
+plot(space(:,1),space(:,2),'o')
+title('Space Filling of Full Factorial')
+
+figure(11)
+plot(space1(:,1),space1(:,2),'o')
+title('Space Filling of Latin Hypercube')
+
+figure (12)
+plot(space2(:,1),space2(:,2),'o')
+title('Space Filling of Sobol Plan')
+%-----------------------------Parallel Coordinates---------------------%
+% Select the optimal sampling plan & then only used that to plot the
+%   parallel coordinates plot 
+figure (13) 
+parallelcoords(Z1)
+xlabel ('Performance Criteria') 
+title('Latin Hypercube sampling')
+
+save Sobol_Space_Sampling.mat space2 % To be used in lab B 
+save Latin_Space_Sampling.mat space1 % To be used in Lab B 
+save Full_Space_Sampling.mat space % % To be used in Lab B
 %%
+% Previous 
 %---------------------Sampling Plan------------------------------%
 % Full Factorial Sampling Plan
 q = [2,50];
