@@ -9,29 +9,71 @@ clc; clear;
 ts = 1; 
 z = tf('z',ts);
 % Gains (compare with stable and unstable system - if deemed necessary) 
+k = 2;  %No. of design variables 
+n = 100; % No. of desired points 
+
 Kp = [0.1]; 
 Ki = [0.2]; 
 
-% KpMin = 0.01; KpMax = 1;
-% KiMin = 0.02; KiMax = 0.4; 
+KpMin = 0.1; KpMax = 1;
+KiMin = 0.2; KiMax = 0.4; 
 
 K = [Kp Ki];
 for i = 1:100
     Z(i,:) = evaluateControlSystem(K);
 end
-%---------------------Sampling Plan------------------------------%
-k = 2;  %No. of design variables 
-n = 100; % No. of desired points 
-% Full Factorial Sampling Plan
-q = [2,50];
-edge = 2; 
-fac_sampl = fullfactorial(q,edge); % full factorial sampling plan 
-% Latin Hypercube Design Sampling Plan
-latin_hyper = rlh(n,k,edge); % Latin hypercube design 
 % Sobol Sampling 
 p = sobolset(k); 
 p.Skip = 1; %Skip first row 
 X_sobol = net(p,100); % Sobol Sampling 
+
+design_space = fullfactorial ([2 50]); %Fulll Factorial [10 10]
+design_space1 = rlh(n,k); % Latin 
+
+space(:,1) = rescale(design_space(:,1),KpMin,KpMax); % Ful Factorial
+space(:,2) = rescale(design_space(:,2),KiMin,KiMax);
+
+space1(:,1) = rescale(design_space1(:,1),KpMin,KpMax); % Latin 
+space1(:,2) = rescale(design_space1(:,2),KiMin,KiMax); 
+
+space2(:,1) = rescale(X_sobol(:,1),KpMin,KpMax);
+space2(:,2) = rescale(X_sobol(:,2),KiMin,KiMax); % Sobol
+
+phiq_fac = mmphi(space,1,2); % Full factorial [Euclidean Distance]
+phiq_latin = mmphi(space1,1,2); % Latin Hypercube design 
+phiq_sobol = mmphi(space2,1,2); % Sobol Sampling
+
+disp(phiq_fac) 
+disp(phiq_latin)
+disp(phiq_sobol)
+
+figure (1) % Scatter Plot with Latin Hypercube sampling plan
+Z1 = evaluateControlSystem(space1);
+gplotmatrix(Z1)
+title('Scatter Plot: Latin Hypercube Sampling Plan') 
+figure(2) % Scatter Plot with Full Factorial sampling plan
+Z2 = evaluateControlSystem(space);
+gplotmatrix(Z2)
+title('Scatter Plot: Full Factorial Sampling Plan')
+figure (3) % Scatter Plot with Sobol Sampling Plan
+Z3 = evaluateControlSystem(X_sobol);
+gplotmatrix(Z3)
+title('Scatter Plot: Sobol Sampling Plan')
+
+figure(4) % with Initial system (Kp & Ki)
+for i = 1:9
+gplotmatrix(Z,[],Z(:,i))
+end
+title('Initial System [Without Sampling Plan]')
+
+%%
+%---------------------Sampling Plan------------------------------%
+% Full Factorial Sampling Plan
+q = [2,50];
+edge = 2; 
+fac_sampl = fullfactorial(q,edge); % full factorial sampling plan
+% Latin Hypercube Design Sampling Plan
+latin_hyper = rlh(n,k,edge); % Latin hypercube design 
 %---------------------------------Phi Metric-----------------------%
 phiq_fac = mmphi(fac_sampl,1,2); % Full factorial [Euclidean Distance]
 phiq_latin = mmphi(latin_hyper,1,2); % Latin Hypercube design 
@@ -40,6 +82,7 @@ phiq_sobol = mmphi(X_sobol,1,2); % Sobol Sampling
 disp(phiq_fac) 
 disp(phiq_latin)
 disp(phiq_sobol)
+%%
 %------------------------------Plot--------------------------------------%
 figure (1) % Scatter Plot with Latin Hypercube sampling plan
 Z1 = evaluateControlSystem(latin_hyper);
