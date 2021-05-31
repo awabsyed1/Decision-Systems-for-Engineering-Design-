@@ -12,11 +12,11 @@ z = tf('z',ts);
 k = 2;  %No. of design variables 
 n = 100; % No. of desired points 
 
-Kp = [60]; 
-Ki = [15]; 
+Kp = [0.1]; 
+Ki = [0.2]; 
 
-KpMin = 0.1; KpMax = 0.9; %0.9
-KiMin = 0.2; KiMax = 0.4;  % 0.4
+KpMin = 0.1; KpMax = 2.3;
+KiMin = 0.2; KiMax = 2.9; 
 
 K = [Kp Ki];
 for i = 1:100
@@ -46,7 +46,7 @@ phiq_sobol = mmphi(space2,1,2); % Sobol Sampling
 disp(phiq_fac) 
 disp(phiq_latin)
 disp(phiq_sobol)
-
+%%
 figure (1) % Scatter Plot with Latin Hypercube sampling plan
 Z1 = evaluateControlSystem(space1);
 gplotmatrix(Z1)
