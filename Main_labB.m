@@ -14,27 +14,28 @@ mex rank_prf.c
 mex crowdingNSGA_II.c 
 mex btwr.c 
 mex polymut.c 
-
+%%
 load ('Sobol_Sampling') % load  sampling 
 load ('Sobol_Space_Sampling')  %load space2 variable from lab A 
 % load ('Full_Sampling')
 % load('Latin_Sampling')
 % P = X_sobol; % Selected Sobol since optimal amongst others
+
 Z = optimizeControlSystem(space2);% Re-evaluate the design - post-processed
 
 %---------------------Calculating Fitness (NSGA-II)-----------------------%
 % Non-dominated Sorting 
-desired_goal = [1 -inf -inf -inf -inf -inf -inf -inf -inf -inf]; % 5.2.1
-desired_goal_1 = [1 -6 -30 60 2 -inf 10 -inf -inf 1]; 
-min_range = [0 -20 -30 0 0 0 0 0 1];
-max_range = [1 -6 60 2 10 10 8 20 1];
+% Goal = [1 0 0 0 -inf 0 0 -inf -inf 0]; % 5.2.1
+Goal = [1 -6 60 -30 2 -inf 10 inf inf 1]; 
+% min_range = [0 -20 -30 0 0 0 0 0 1];
+% max_range = [1 -6 60 2 10 10 8 20 1];
+Level = [1 0 0 0 0 0 0 0 0 0]; % 5.2.1
 % Goal Priorities 
-Hard = 1; 
-High = 0;
-Moderate = 0;
-Low = 0; 
-priority = [Hard 0 0 0 0 0 0 0 0 0] ; %5.2.1
-priority_1 = [Hard High High High Moderate Low Moderate Low Low Moderate];
+Hard = 2; 
+High = 1;
+Moderate = 0.8;
+Low = 0.5; 
+priority = [Hard High High High Moderate Low Moderate Low Low Moderate];
 metric = Hypervolume_MEX(space2);
 
 n = 50; %Number of iterations / generations 
@@ -47,45 +48,65 @@ individual = [];
 [N,m] = size(Z); % space2 or Z 
 x = Z; % space2 or Z 
 V = 100; % design/decision variables 
-%% 
-[J,distinct_d] = jd(X_sobol,2); %Euclidean p = 2
-for i = 1:50 % [N,M] = size(space2)
+
+% [J,distinct_d] = jd(space2,2); %Euclidean p = 2
+iteration = zeros(250,1); 
+for i = 1:100 % [N,M] = size(space2)
     pool = round(pop/2); 
     nond_rank = rank_nds(Z); % non-dominated sorting 
-    fitness = max(nond_rank)-nond_rank;
+    fitness = max(nond_rank)-nond_rank +1;
     %Crowding Distance 
     crowding_d = crowding(Z,nond_rank); 
     % Selection for variation 
-    selectTourIndex = btwr([fitness,crowding_d]); % pool
-    parents = space2(selectTourIndex,:);
+    selectTourIndex = btwr([fitness,crowding_d]);
+    selectTour = space2(selectTourIndex,:);
     % Z = optimizeControlSystem(parents);
     %----------------- performing variation-------------------%
     % Simulated binary crossover 
-    bounds = [min(parents(:,1)),min(parents(:,2));...
-        max(parents(:,1)),max(parents(:,2))];
-    offspring_sim = sbx(parents,bounds); 
+    bounds = [0.1 0.2 ; 0.8 0.5];
+    %bounds = [min(selectTour(:,1)),min(selectTour(:,2));...
+        % max(selectTour(:,1)),max(selectTour(:,2))];
+    offspring_sim = sbx(selectTour,bounds); 
     % Polynomial mutation 
     offspring_poly = polymut(offspring_sim,bounds); %Poly
+    
     %----------------selection for survival-----------------%
     Z_offspring = optimizeControlSystem(offspring_sim);
     % Z_offspring_poly = optimizeControlSystem(offspring_poly);
     
-    new_pop = [Z;Z_offspring]; % Polynomial mutation population
-    % Selection for survival 
-    [nond_rank_poly,fitness_poly,crowding_d_poly] = evaluate(new_pop);
+    new_pop = [space2;offspring_poly]; % Polynomial mutation population
+    % Selection for variation 
+[nond_rank_poly,fitness_poly,crowding_d_poly,Class] = evaluate(new_pop,Goal,Level);
     
+    % Selection for Survival 
+    survivor = reducerNSGA_II(new_pop,nond_rank_poly,crowding_d_poly);
+        
+    iteration(i) = i;
+    % use the survivor (after elitism) as new population
+    space2 = new_pop(survivor,:);
    %  new_pop_indix = reducerNSGA_II(new_pop_sim,nond_rank_sim,
 end 
 
+% Monitor 
+HV = Hypervolume_MEX(space2); 
 
-% for i = 1:n
-%     
-% end
+Z1 = optimizeControlSystem(space2); 
+Z2 = evaluateControlSystem(space2);
+figure(1)
+parallelcoords(Z1)
+title('Parallel Coordinates')
+xlabel('criterias')
 
-% for k = 1:10
-%     min_range(k) = 0.05
-%     max_range(k) = 
-% end
+figure(2)
+gplotmatrix(Z1,space2)
+title('Scatter ')
+
+figure(3)
+glyphplot(Z1,space2)
+title('Scatter ')
+
+    % Extract_survivor = new_pop(survivor,:); 
+%     Class = Class(survivor,:);
 %%
 % Different (updated)
 for i = 1:25 %number of iterations 
