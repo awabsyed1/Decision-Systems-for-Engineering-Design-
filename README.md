@@ -26,7 +26,10 @@ Each sampling plans were compared and the optimal that took full advantage of de
 ## [Knowledge Discovery] 
 ### [Chernoff Face Plot]
 Several types of plots were considered, the Chernoff Face Plot shown below displays 100 candidate design solutions with facial features depicting the relevant performance critera. 
+
+
 ![image](https://user-images.githubusercontent.com/42310216/146129679-4b5fc677-05da-4518-9caa-91a53c08b8bb.png)
+
 
 ![image](https://user-images.githubusercontent.com/42310216/146129712-5e0cde41-4f53-41cb-9f69-4e97e17218d0.png)
 
